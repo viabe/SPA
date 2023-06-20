@@ -1,17 +1,21 @@
 CC := gcc
 CFLAGS := -Wall -Werror
-LDFLAGS := -L. -lgnspa -lssl -lcrypto
+LDFLAGS := -L./bin -lgnspa -lssl -lcrypto
+BINDIR := bin
 
-all: libgnspa.so client
+all: $(BINDIR)/libgnspa.so $(BINDIR)/client
 
-libgnspa.so: gnspa.o
-	$(CC) $(LDFLAGS) -shared -o $@ $^
+$(BINDIR)/libgnspa.so: gnspa.o | $(BINDIR)
+	$(CC) $(LDFLAGS) -shared -o $@ $<
 
 gnspa.o: gnspa.c gnspa.h
 	$(CC) $(CFLAGS) -c -fpic $< -o $@
 
-client: client.c
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+$(BINDIR)/client: client.c | $(BINDIR)
+	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
+
+$(BINDIR):
+	mkdir -p $(BINDIR)
 
 clean:
-	rm -f *.o libgnspa.so client
+	rm -f *.o $(BINDIR)/libgnspa.so $(BINDIR)/client
