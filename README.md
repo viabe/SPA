@@ -32,11 +32,12 @@ The repository contains the following code files:
 Usage:
 1. Build and run the server:
    - Open a terminal and navigate to the 'spa' directory:
-     cd spa
    - Run the server using Python 3:
-     cd server
-     python3 server.py
-
+```
+  $ cd server
+  $ python3 server.py
+```
+```
    Result:
    Calculated Data:
     - HMAC [ 6d343c4378f887634eb9b3d3a618d4a4fec07c11e0292562b9e95271ee440ac3 ]
@@ -50,18 +51,19 @@ Usage:
     - Source IP: 192.168.1.100
     - OTP: 104207
     - HMAC: 6d343c4378f887634eb9b3d3a618d4a4fec07c11e0292562b9e95271ee440ac3
-
+```
 2. Run the client:
    - Open another terminal and navigate to the 'spa' directory (if not already there):
-     cd spa
    - Run the client using Python 3:
-     cd client
-     python3 client.py
-
+```
+  $ cd client
+  $ python3 client.py
+```
+```
    Result:
     - OTP  [ 104207 ]
     - HMAC [ cc2de10d0f60c100bdbdb047ffa5ff1bd162f486722944925dc2e777042c3a4b ]
-
+```
 ## License
 
 This project is licensed under the MIT License - see the `LICENSE` file for details.
