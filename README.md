@@ -81,5 +81,6 @@ This project is licensed under the MIT License - see the `LICENSE` file for deta
 
 ## Acknowledgments
 
-- The TOTP implementation uses the `pyotp` library.
-- The C & golang implementation is Work in progress.
+- Python code TOTP implementation uses the `pyotp` library.
+- C code implementation of TOTP utilizes liboath and follows the RFC 6238 standard, matching the OTP generation method used in pyotp.
+- C & golang implementation is Work in progress.
