@@ -22,11 +22,5 @@ int main() {
         return -1;
     }
 
-    printf("HMAC: ");
-    for (int i = 0; i < HMAC_SIZE; i++) {
-        printf("%02x", packet.hmac_value[i]);
-    }
-    printf("\n");
-
     return 0;
 }

@@ -12,6 +12,7 @@ NONCE_SIZE = 2
 TIMESTAMP_SIZE = 8
 SOURCE_IP_SIZE = 4
 HMAC_SIZE = 32
+OTP_SIZE = 6
 
 def generate_hmac(shared_secret, machine_id, nonce, timestamp, source_ip, totp_value):
     # Prepare data for HMAC generation
@@ -20,7 +21,7 @@ def generate_hmac(shared_secret, machine_id, nonce, timestamp, source_ip, totp_v
         nonce.to_bytes(NONCE_SIZE, byteorder='big') +
         timestamp.to_bytes(TIMESTAMP_SIZE, byteorder='big') +
         socket.inet_aton(source_ip) +
-        totp_value.encode().ljust(HMAC_SIZE, b'\x00')
+        totp_value.encode().ljust(OTP_SIZE, b'\x00')
     )
 
     # Calculate HMAC
@@ -43,7 +44,7 @@ def verify_otp(shared_secret, device_id, timestamp, totp_value):
     totp = pyotp.TOTP(shared_secret_base32)
 
     timestamp = int(time.time())
-    print(" - OTP  [", totp.at(timestamp), "]")    
+    print(" - OTP  [", totp.at(timestamp), "]")
 
     return totp.verify(totp_value, timestamp)
 
@@ -53,7 +54,7 @@ def verify_packet(packet, shared_secret, device_id):
     nonce = int.from_bytes(packet[MACHINE_ID_SIZE:MACHINE_ID_SIZE + NONCE_SIZE], byteorder='big')
     timestamp = int.from_bytes(packet[MACHINE_ID_SIZE + NONCE_SIZE:MACHINE_ID_SIZE + NONCE_SIZE + TIMESTAMP_SIZE], byteorder='big')
     source_ip = socket.inet_ntoa(packet[MACHINE_ID_SIZE + NONCE_SIZE + TIMESTAMP_SIZE:MACHINE_ID_SIZE + NONCE_SIZE + TIMESTAMP_SIZE + SOURCE_IP_SIZE])
-    totp_value = packet[MACHINE_ID_SIZE + NONCE_SIZE + TIMESTAMP_SIZE + SOURCE_IP_SIZE:MACHINE_ID_SIZE + NONCE_SIZE + TIMESTAMP_SIZE + SOURCE_IP_SIZE + HMAC_SIZE].rstrip(b'\x00').decode()
+    totp_value = packet[MACHINE_ID_SIZE + NONCE_SIZE + TIMESTAMP_SIZE + SOURCE_IP_SIZE:MACHINE_ID_SIZE + NONCE_SIZE + TIMESTAMP_SIZE + SOURCE_IP_SIZE + OTP_SIZE].rstrip(b'\x00').decode()
 
     hmac_value = packet[-HMAC_SIZE:]
 
@@ -61,7 +62,7 @@ def verify_packet(packet, shared_secret, device_id):
     hmac_calculated = generate_hmac(shared_secret, machine_id, nonce, timestamp, source_ip, totp_value)
     
     print("\nCalculated Data:")
-    print(" - HMAC [", hmac_value.hex(), "]")
+    print(" - HMAC [", hmac_calculated.hex(), "]")
 
     # Compare HMAC values
     if hmac.compare_digest(hmac_value, hmac_calculated):
@@ -98,6 +99,6 @@ while True:
     print(" - Nonce:", int.from_bytes(received_packet[MACHINE_ID_SIZE:MACHINE_ID_SIZE + NONCE_SIZE], byteorder='big'))
     print(" - Timestamp:", int.from_bytes(received_packet[MACHINE_ID_SIZE + NONCE_SIZE:MACHINE_ID_SIZE + NONCE_SIZE + TIMESTAMP_SIZE], byteorder='big'))
     print(" - Source IP:", socket.inet_ntoa(received_packet[MACHINE_ID_SIZE + NONCE_SIZE + TIMESTAMP_SIZE:MACHINE_ID_SIZE + NONCE_SIZE + TIMESTAMP_SIZE + SOURCE_IP_SIZE]))
-    print(" - OTP:", received_packet[MACHINE_ID_SIZE + NONCE_SIZE + TIMESTAMP_SIZE + SOURCE_IP_SIZE:MACHINE_ID_SIZE + NONCE_SIZE + TIMESTAMP_SIZE + SOURCE_IP_SIZE + HMAC_SIZE].rstrip(b'\x00').decode())
+    print(" - OTP:", received_packet[MACHINE_ID_SIZE + NONCE_SIZE + TIMESTAMP_SIZE + SOURCE_IP_SIZE:MACHINE_ID_SIZE + NONCE_SIZE + TIMESTAMP_SIZE + SOURCE_IP_SIZE + OTP_SIZE].rstrip(b'\x00').decode())
     print(" - HMAC:", received_packet[-HMAC_SIZE:].hex())
     print("\n")

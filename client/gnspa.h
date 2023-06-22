@@ -5,6 +5,7 @@
 
 #define MACHINE_ID_SIZE 36
 #define HMAC_SIZE 32
+#define OTP_SIZE 6
 
 #pragma pack(push, 1) // 패딩을 없애기 위해 1바이트 정렬 지시자 사용
 
@@ -13,6 +14,7 @@ struct Packet {
     uint16_t nonce;
     uint64_t timestamp;
     uint32_t source_ip;
+    char totp_value[OTP_SIZE];
     unsigned char hmac_value[HMAC_SIZE];
 };
 #pragma pack(pop)

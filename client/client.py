@@ -12,13 +12,9 @@ MACHINE_ID_SIZE = 36
 NONCE_SIZE = 2
 TIMESTAMP_SIZE = 8
 HMAC_SIZE = 32
+OTP_SIZE = 6
 
-def generate_packet(machine_id, source_ip, shared_secret):
-    # Set packet field values
-    timestamp = int(time.time())
-
-    # Generate nonce value (between 0 and 65535)
-    nonce = random.randint(0, 65535)
+def generate_otp(shared_secret, machind_id):
 
     # Generate HMAC for machine_id
     hmac_algorithm = hashlib.sha256()
@@ -28,9 +24,18 @@ def generate_packet(machine_id, source_ip, shared_secret):
 
     shared_secret_base32 = base64.b32encode(hmac_value).decode()
 
-    # Generate TOTP based on the current time
     totp = pyotp.TOTP(shared_secret_base32)
-    totp_value = totp.at(timestamp)
+    return totp.now()
+
+def generate_packet(machine_id, source_ip, shared_secret):
+    # Set packet field values
+    timestamp = int(time.time())
+
+    # Generate nonce value (between 0 and 65535)
+    nonce = random.randint(0, 65535)
+
+    # Generate OTP
+    totp_value = generate_otp(shared_secret, machine_id)
 
     print(" - OTP  [", totp_value, "]")
 
@@ -43,7 +48,7 @@ def generate_packet(machine_id, source_ip, shared_secret):
         nonce.to_bytes(NONCE_SIZE, byteorder='big') +
         timestamp.to_bytes(TIMESTAMP_SIZE, byteorder='big') +
         socket.inet_aton(source_ip) +
-        totp_value.encode().ljust(HMAC_SIZE, b'\x00') +
+        totp_value.encode().ljust(OTP_SIZE, b'\x00') +
         hmac_value.ljust(HMAC_SIZE, b'\x00') 
     )
 
@@ -57,7 +62,7 @@ def generate_hmac(shared_secret, machine_id, nonce, timestamp, source_ip, totp_v
         nonce.to_bytes(NONCE_SIZE, byteorder='big') +
         timestamp.to_bytes(TIMESTAMP_SIZE, byteorder='big') +
         socket.inet_aton(source_ip) + 
-        totp_value.encode().ljust(HMAC_SIZE, b'\x00')
+        totp_value.encode().ljust(OTP_SIZE, b'\x00')
     )
 
     key = shared_secret.encode()

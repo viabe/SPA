@@ -1,6 +1,6 @@
 CC := gcc
 CFLAGS := -Wall -Werror
-LDFLAGS := -L./bin -lgnspa -lssl -lcrypto
+LDFLAGS := -L./bin -lgnspa -lssl -lcrypto -loath
 BINDIR := bin
 
 all: $(BINDIR)/libgnspa.so $(BINDIR)/client

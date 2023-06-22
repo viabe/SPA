@@ -7,7 +7,31 @@
 #include <arpa/inet.h>
 #include <openssl/hmac.h>
 #include <openssl/sha.h>
+#include "liboath/oath.h"
 #include "gnspa.h"
+
+void generate_otp(const char *shared_secret, const char *machine_id, char *otp_value) {
+    // Generate HMAC for machine_id
+    unsigned char hmac_value[HMAC_SIZE];
+    SHA256_CTX ctx;
+    SHA256_Init(&ctx);
+    SHA256_Update(&ctx, shared_secret, strlen(shared_secret));
+    SHA256_Update(&ctx, machine_id, strlen(machine_id));
+    SHA256_Final(hmac_value, &ctx);
+
+    // Generate TOTP
+    time_t now = time(NULL);
+    char otp[OTP_SIZE];
+    oath_totp_generate((const char *)hmac_value, HMAC_SIZE, now, 30, 0, OTP_SIZE, otp);
+
+    // Copy TOTP value to the provided buffer
+    memcpy(otp_value, otp, OTP_SIZE);
+
+    char otp_str[OTP_SIZE + 1];
+    otp_str[OTP_SIZE] = '\0';
+    memcpy(otp_str, otp_value, OTP_SIZE);
+    printf(" - OTP  [ %s ]\n", otp_str);
+}
 
 void generate_hmac(const char *shared_secret, const struct Packet *packet, unsigned char *hmac_value) {
     SHA256_CTX ctx;
@@ -37,13 +61,21 @@ int spa_fill_packet(const char *shared_secret, const char *machine_id, const cha
     uint64_t timestamp = time(NULL);
 
     // Set packet field values
-    strncpy(packet->machine_id, machine_id, MACHINE_ID_SIZE);
+    memcpy(packet->machine_id, machine_id, MACHINE_ID_SIZE);
     packet->nonce = htons(nonce);
     packet->timestamp = timestamp;
     packet->source_ip = inet_addr(source_ip);
 
+    generate_otp(shared_secret, machine_id, packet->totp_value);
+
     // Generate HMAC
     generate_hmac(shared_secret, packet, packet->hmac_value);
+
+    printf(" - HMAC [ ");
+    for (int i = 0; i < HMAC_SIZE; i++) {
+        printf("%02x", packet->hmac_value[i]);
+    }
+    printf(" ]\n");    
 
     return 0; // Success
 }
