@@ -30,7 +30,7 @@ The repository contains the following code files:
 - `gnspa.h`: Header file for the C implementation.
 
 Usage:
-1. Build and run the server:
+1. Run the server:
    - Open a terminal and navigate to the 'spa' directory:
    - Run the server using Python 3:
 ```
@@ -52,7 +52,7 @@ Usage:
     - OTP: 104207
     - HMAC: 6d343c4378f887634eb9b3d3a618d4a4fec07c11e0292562b9e95271ee440ac3
 ```
-2. Run the client:
+2. Building and Run the client:
    - Open another terminal and navigate to the 'spa' directory (if not already there):
    - Run the client using Python 3:
 ```
@@ -63,6 +63,17 @@ Usage:
    Result:
     - OTP  [ 104207 ]
     - HMAC [ cc2de10d0f60c100bdbdb047ffa5ff1bd162f486722944925dc2e777042c3a4b ]
+```
+  - Build for C client and run
+```
+   $ make
+   $ cd client/bin
+   $ LD_LIBRARY_PATH=. ./client
+```
+```
+   Result
+ - OTP  [ 861684 ]
+ - HMAC [ 474dbf338a35a1c948d3030d2d96bfd2990b28faf1ba21a00b214be485331f43 ]
 ```
 ## License
 
