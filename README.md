@@ -1,4 +1,4 @@
-# Packet Verification System
+# Single Packet Authorization
 
 This repository provides a packet verification system that uses Time-Based One-Time Passwords (TOTP) and Hash-based Message Authentication Codes (HMAC) to ensure the integrity and authenticity of packets.
 
