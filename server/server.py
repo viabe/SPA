@@ -8,6 +8,7 @@ import base64
 
 # Packet field sizes
 MACHINE_ID_SIZE = 36
+print("hello world")
 NONCE_SIZE = 2
 TIMESTAMP_SIZE = 8
 SOURCE_IP_SIZE = 4
